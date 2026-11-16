@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Life Hub
 
-## Getting Started
+Personal organiser: bills, subscriptions, insurance renewals, cars (MOT/tax), documents with AI extraction, an AI assistant that has read everything, gas & electric tariffs, warranties, lent/borrowed items and key dates.
 
-First, run the development server:
+**Stack:** Next.js 15 (App Router) · Supabase (Postgres, Auth, Storage, RLS) · Vercel · Vercel AI Gateway (Claude)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Environment
+| Var | |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
+| `AI_MODEL` | optional, default `anthropic/claude-sonnet-5.5` |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+AI calls go through Vercel AI Gateway, which authenticates automatically on Vercel (OIDC). Locally, run `vercel env pull` or set `AI_GATEWAY_API_KEY`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Security
+- Every table has row-level security: only the owner can read/write their rows.
+- Files are in a private `documents` bucket, stored under `<user_id>/…`.
+- Sign-ups are locked after the first account. To let someone else in (e.g. a partner), add their email to `public.allowed_signups` in the Supabase SQL editor.
+- The calendar feed (`/api/calendar/<token>.ics`) is protected by a random token you can reset in Settings.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Database
+Schema lives in `supabase/migrations/`.
