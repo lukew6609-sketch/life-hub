@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/supabase/server";
 import { categoryLabel, frequencyLabel } from "@/lib/fields";
 import { money, monthly, priceTrend, yearly } from "@/lib/money";
 import { Card, Empty, PageHeader, Stat } from "@/components/ui";
+import GroupTabs from "@/components/GroupTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -35,15 +36,23 @@ function projectYear(bills: Bill[]) {
   return months.map((m) => ({ ...m, total: m.regular + m.lumps.reduce((s, l) => s + l.amount, 0) }));
 }
 
-export default async function Review() {
+export default async function Review({ searchParams }: { searchParams: Promise<{ group?: string }> }) {
+  const { group = "all" } = await searchParams;
   const { supabase } = await requireUser();
   const [{ data: bills }, { data: history }, { data: income }] = await Promise.all([
-    supabase.from("commitments").select("id, name, amount, frequency, category, start_date, end_date, provider").eq("active", true),
+    supabase.from("commitments").select("id, name, amount, frequency, category, start_date, end_date, provider, bill_group").eq("active", true),
     supabase.from("price_history").select("commitment_id, effective_date, amount, frequency"),
     supabase.from("income").select("amount, frequency").eq("active", true),
   ]);
   const inYear = (income ?? []).reduce((s, i) => s + yearly(i.amount, i.frequency), 0);
-  const list = (bills ?? []) as Bill[];
+  const allBills = (bills ?? []) as (Bill & { bill_group: string })[];
+  const totals: Record<string, number> = { all: 0 };
+  for (const b of allBills) {
+    const m = monthly(b.amount, b.frequency);
+    totals[b.bill_group] = (totals[b.bill_group] ?? 0) + m;
+    totals.all += m;
+  }
+  const list: Bill[] = group === "all" ? allBills : allBills.filter((b) => b.bill_group === group);
   if (list.length === 0)
     return (
       <div>
@@ -70,12 +79,13 @@ export default async function Review() {
   return (
     <div className="space-y-6">
       <PageHeader title="Yearly review" subtitle="Where the money goes, and what's creeping up" />
+      <GroupTabs base="/review" current={group} totals={totals} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat label="Per year" value={money(perYear, true)} />
         <Stat label="Average month" value={money(perYear / 12, true)} />
         <Stat label="Biggest month ahead" value={money(peak, true)} sub={year.find((m) => m.total === peak)?.label} />
-        <Stat label="Left after bills / year" value={inYear ? money(inYear - perYear, true) : "—"} sub={inYear ? `from ${money(inYear, true)} coming in` : "add income on Money in"} href="/income" />
+        <Stat label="Left after all bills / year" value={inYear ? money(inYear - totals.all * 12, true) : "—"} sub={inYear ? `from ${money(inYear, true)} coming in` : "add income on Money in"} href="/income" />
       </div>
 
       <Card title="Next 12 months" action={<span className="text-xs text-stone-500">yearly & quarterly payments land in their month</span>}>

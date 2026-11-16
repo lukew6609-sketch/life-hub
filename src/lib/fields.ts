@@ -35,6 +35,13 @@ export const CATEGORIES = opt([
   ["other", "Other"],
 ]);
 
+export const GROUPS = opt([
+  ["household", "Household"],
+  ["personal", "Personal"],
+  ["rental", "Rental property"],
+]);
+export const groupLabel = (v?: string | null) => GROUPS.find((g) => g.value === v)?.label ?? "Household";
+
 export const FREQUENCIES = opt([
   ["weekly", "Weekly"],
   ["fortnightly", "Fortnightly"],
@@ -64,6 +71,7 @@ export const FORMS: Record<string, Field[]> = {
     { name: "name", label: "Name", type: "text", required: true, placeholder: "e.g. Pet insurance" },
     { name: "provider", label: "Provider", type: "text", placeholder: "e.g. Petplan" },
     { name: "category", label: "Category", type: "select", options: CATEGORIES },
+    { name: "bill_group", label: "Group", type: "select", options: GROUPS, help: "Household, personal (your own subscriptions) or rental property" },
     { name: "amount", label: "Amount (£)", type: "money" },
     { name: "frequency", label: "How often", type: "select", options: FREQUENCIES },
     { name: "payment_day", label: "Day it comes out", type: "number", placeholder: "1-31" },

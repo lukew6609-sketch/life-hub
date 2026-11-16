@@ -3,17 +3,25 @@ import { requireUser } from "@/lib/supabase/server";
 import { CATEGORIES, frequencyLabel } from "@/lib/fields";
 import { money, monthly, ordinal } from "@/lib/money";
 import RecordForm from "@/components/RecordForm";
+import GroupTabs from "@/components/GroupTabs";
 import { Card, DueBadge, Empty, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
-export default async function Bills({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
-  const { show } = await searchParams;
+export default async function Bills({ searchParams }: { searchParams: Promise<{ show?: string; group?: string }> }) {
+  const { show, group = "household" } = await searchParams;
   const { supabase } = await requireUser();
   let q = supabase.from("commitments").select("*").order("name");
   if (show !== "all") q = q.eq("active", true);
   const { data: bills } = await q;
-  const list = bills ?? [];
+  const everything = bills ?? [];
+  const totals: Record<string, number> = { all: 0 };
+  for (const b of everything.filter((x) => x.active)) {
+    const m = monthly(b.amount, b.frequency);
+    totals[b.bill_group] = (totals[b.bill_group] ?? 0) + m;
+    totals.all += m;
+  }
+  const list = group === "all" ? everything : everything.filter((b) => b.bill_group === group);
   const total = list.filter((b) => b.active).reduce((s, b) => s + monthly(b.amount, b.frequency), 0);
 
   const groups = CATEGORIES.map((c) => ({ ...c, items: list.filter((b) => b.category === c.value) })).filter((g) => g.items.length);
@@ -21,14 +29,16 @@ export default async function Bills({ searchParams }: { searchParams: Promise<{ 
   return (
     <div>
       <PageHeader title="Bills & renewals" subtitle={`Direct debits, subscriptions and insurance. ${money(total)} a month, ${money(total * 12, true)} a year.`}>
-        <Link href={show === "all" ? "/bills" : "/bills?show=all"} className="btn-ghost">
+        <Link href={show === "all" ? `/bills?group=${group}` : `/bills?group=${group}&show=all`} className="btn-ghost">
           {show === "all" ? "Hide cancelled" : "Show cancelled"}
         </Link>
-        <RecordForm table="commitments" label="Add bill" title="Add a bill / subscription / policy" />
+        <RecordForm table="commitments" label="Add bill" title="Add a bill / subscription / policy" defaults={{ bill_group: group === "all" ? "household" : group }} />
       </PageHeader>
 
+      <GroupTabs base="/bills" current={group} totals={totals} extra={show === "all" ? "&show=all" : ""} />
+
       {groups.length === 0 ? (
-        <Empty>No bills yet. Add your first one, or upload a policy document and let the AI fill it in.</Empty>
+        <Empty>No bills in this group yet.</Empty>
       ) : (
         <div className="space-y-5">
           {groups.map((g) => {

@@ -42,12 +42,13 @@ export default async function Dashboard() {
   const alertDays = await getAlertDays(supabase);
   const [attention, { data: bills }, { data: income }] = await Promise.all([
     getAttention(supabase, alertDays),
-    supabase.from("commitments").select("name, amount, frequency, category").eq("active", true),
+    supabase.from("commitments").select("name, amount, frequency, category, bill_group").eq("active", true),
     supabase.from("income").select("amount, frequency").eq("active", true),
   ]);
 
   const perMonth = (bills ?? []).reduce((s, b) => s + monthly(b.amount, b.frequency), 0);
   const inMonth = (income ?? []).reduce((s, i) => s + monthly(i.amount, i.frequency), 0);
+  const byGroup = (g: string) => (bills ?? []).filter((b) => b.bill_group === g).reduce((s, b) => s + monthly(b.amount, b.frequency), 0);
   const byCat = new Map<string, number>();
   for (const b of bills ?? []) byCat.set(b.category, (byCat.get(b.category) ?? 0) + monthly(b.amount, b.frequency));
   const cats = [...byCat.entries()].sort((a, b) => b[1] - a[1]);
@@ -61,7 +62,7 @@ export default async function Dashboard() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Stat label="Going out / month" value={money(perMonth, true)} sub={`${(bills ?? []).length} bills · ${money(perMonth * 12, true)}/yr`} href="/bills" />
+        <Stat label="Going out / month" value={money(perMonth, true)} sub={`Household ${money(byGroup("household"), true)} · Personal ${money(byGroup("personal"), true)} · Rental ${money(byGroup("rental"), true)}`} href="/bills" />
         <Stat label="Coming in / month" value={inMonth ? money(inMonth, true) : "—"} sub={inMonth ? `${money(inMonth * 12, true)}/yr` : "add your income"} href="/income" />
         <Stat label="Left after bills" value={inMonth ? money(inMonth - perMonth, true) : "—"} sub="per month" href="/income" />
         <Stat label="Needs attention" value={String(attention.length)} sub={urgent ? `${urgent} within 2 weeks` : `next ${alertDays} days`} />

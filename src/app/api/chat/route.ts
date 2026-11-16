@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   // Structured records are small, so give the model all of them up front.
   const [c, v, w, e, l, k, d, inc] = await Promise.all([
-    supabase.from("commitments").select("name, provider, category, amount, frequency, payment_day, payment_method, start_date, end_date, auto_renews, reference, phone, website, notes, active"),
+    supabase.from("commitments").select("name, provider, category, bill_group, amount, frequency, payment_day, payment_method, start_date, end_date, auto_renews, reference, phone, website, notes, active"),
     supabase.from("vehicles").select("registration, make, model, year, mot_due, tax_due, service_due, notes"),
     supabase.from("warranties").select("item, brand, retailer, purchase_date, expiry_date, cost, serial_number, notes"),
     supabase.from("energy_tariffs").select("supplier, tariff_name, fuel, unit_rate_p, night_rate_p, standing_charge_p, start_date, end_date, exit_fee, monthly_payment, annual_usage_kwh, meter_number, mpan_mprn, account_number, is_current"),
