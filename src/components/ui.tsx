@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { fmtDate, relDays } from "@/lib/money";
+import { urgency } from "@/lib/urgency";
 
 export function PageHeader({ title, subtitle, children }: { title: string; subtitle?: string; children?: ReactNode }) {
   return (
@@ -48,7 +49,7 @@ export function Stat({ label, value, sub, href }: { label: string; value: string
 export function DueBadge({ date }: { date?: string | null }) {
   if (!date) return <span className="text-stone-400">—</span>;
   const n = Math.round((new Date(date + "T00:00:00").getTime() - new Date(new Date().toDateString()).getTime()) / 86400000);
-  const tone = n < 0 ? "bg-red-100 text-red-700" : n <= 14 ? "bg-amber-100 text-amber-800" : n <= 60 ? "bg-sky-100 text-sky-800" : "bg-stone-100 text-stone-600";
+  const tone = urgency(n).chip;
   return (
     <span className="inline-flex flex-col">
       <span>{fmtDate(date)}</span>

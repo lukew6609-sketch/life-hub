@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/supabase/server";
 import { CATEGORIES } from "@/lib/fields";
 import { daysUntil, fmtDate, money, monthly, ordinal, relDays } from "@/lib/money";
 import { CatIcon, catStyle } from "@/lib/categories";
+import { urgency } from "@/lib/urgency";
 import RecordForm from "@/components/RecordForm";
 import GroupTabs from "@/components/GroupTabs";
 import { Empty, PageHeader } from "@/components/ui";
@@ -14,7 +15,7 @@ const PER: Record<string, string> = { weekly: "/wk", fortnightly: "/2wk", four_w
 
 function RenewChip({ date }: { date: string }) {
   const n = daysUntil(date);
-  const tone = n < 0 ? "bg-red-50 text-red-700" : n <= 45 ? "bg-amber-50 text-amber-700" : "bg-stone-100 text-stone-600";
+  const tone = urgency(n).chip;
   return (
     <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${tone}`} title={fmtDate(date)}>
       {n <= 60 ? `Renews ${relDays(n)}` : `Renews ${fmtDate(date)}`}

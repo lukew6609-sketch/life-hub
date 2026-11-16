@@ -6,17 +6,12 @@ import { categoryLabel } from "@/lib/fields";
 import { money, monthly, relDays } from "@/lib/money";
 import { CatIcon, GROUP_COLOR } from "@/lib/categories";
 import { Card } from "@/components/ui";
+import { urgency } from "@/lib/urgency";
 import PrivateCard from "@/components/PrivateCard";
 
 export const dynamic = "force-dynamic";
 
 const KIND_ICON = { renewal: Receipt, car: Car, warranty: ShieldCheck, energy: Flame, date: CalendarClock, loan: CalendarClock };
-
-function urgency(days: number) {
-  if (days < 0) return { ring: "#ff6b6b", bg: "rgba(255,107,107,0.12)", text: "text-red-600" };
-  if (days <= 14) return { ring: "#f2b84b", bg: "rgba(242,184,75,0.12)", text: "text-amber-700" };
-  return { ring: "#5aaeff", bg: "rgba(90,174,255,0.10)", text: "text-sky-800" };
-}
 
 /** Calendar-page style date tile. */
 function DateTile({ date, days }: { date: string; days: number }) {
@@ -48,8 +43,8 @@ function Timeline({ items }: { items: AttentionItem[] }) {
                   <Icon size={15} className="text-stone-500 shrink-0" /> {a.title}
                 </p>
                 {a.detail && <p className="text-sm text-stone-500 mt-0.5">{a.detail}</p>}
-                <p className={`text-xs font-semibold mt-1 ${u.text}`}>{relDays(a.days)}</p>
               </div>
+              <span className={`shrink-0 mt-1 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${u.chip}`}>{relDays(a.days)}</span>
             </Link>
           </li>
         );
