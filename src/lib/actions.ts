@@ -39,6 +39,12 @@ export async function saveRecord(_prev: ActionState, fd: FormData): Promise<Acti
 
   for (const f of FORMS[table]) if (f.required && (row[f.name] === null || row[f.name] === undefined)) return { error: `${f.label} is required` };
 
+  // Stop the same policy being added twice (e.g. once from Bills and again from Cars).
+  if (table === "commitments" && !id && row.reference) {
+    const { data: dupe } = await supabase.from("commitments").select("name").eq("reference", row.reference as string).eq("active", true).limit(1).maybeSingle();
+    if (dupe) return { error: `You already have "${dupe.name}" saved with this policy / account number.` };
+  }
+
   // Tables whose amount changes are logged automatically.
   const HIST: Record<string, [string, string]> = { commitments: ["price_history", "commitment_id"], income: ["income_history", "income_id"] };
   const hist = HIST[table];
