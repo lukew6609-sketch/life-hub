@@ -38,7 +38,7 @@ export default function Login() {
     <main className="min-h-screen flex items-center justify-center p-4">
       <form onSubmit={submit} className="card w-full max-w-sm space-y-4">
         <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-xl bg-emerald-700 text-white grid place-items-center font-bold">L</div>
+          <div className="h-9 w-9 rounded-xl bg-emerald-700 text-white grid place-items-center font-bold font-display">L</div>
           <div>
             <h1 className="font-semibold text-lg leading-tight">Life Hub</h1>
             <p className="text-xs text-stone-500">{mode === "in" ? "Sign in" : "Create your account"}</p>

@@ -25,17 +25,17 @@ export default function Nav() {
   return (
     <>
       {/* desktop sidebar */}
-      <aside className="hidden md:flex md:flex-col w-60 shrink-0 border-r border-stone-200 bg-white/70 h-screen sticky top-0 p-4">
+      <aside className="hidden md:flex md:flex-col w-60 shrink-0 border-r border-stone-200 bg-white/60 backdrop-blur h-screen sticky top-0 p-4">
         <Link href="/" className="flex items-center gap-2 px-2 mb-6">
-          <div className="h-8 w-8 rounded-lg bg-emerald-700 text-white grid place-items-center font-bold">L</div>
-          <span className="font-semibold">Life Hub</span>
+          <div className="h-8 w-8 rounded-lg bg-emerald-700 text-white grid place-items-center font-bold font-display">L</div>
+          <span className="font-display font-semibold text-lg">Life Hub</span>
         </Link>
         <nav className="space-y-0.5">
           {NAV.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm ${active(href) ? "bg-emerald-50 text-emerald-800 font-medium" : "text-stone-600 hover:bg-stone-100"}`}
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm ${active(href) ? "bg-emerald-50 text-emerald-700 font-semibold" : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"}`}
             >
               <Icon size={17} /> {label}
             </Link>
@@ -43,13 +43,13 @@ export default function Nav() {
         </nav>
       </aside>
       {/* mobile top bar */}
-      <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-stone-200">
+      <div className="md:hidden sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-stone-200">
         <div className="flex gap-1 overflow-x-auto px-2 py-2 no-scrollbar">
           {NAV.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs ${active(href) ? "bg-emerald-700 text-white" : "bg-stone-100 text-stone-700"}`}
+              className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs ${active(href) ? "bg-emerald-700 text-white font-semibold" : "bg-stone-100 text-stone-700"}`}
             >
               <Icon size={14} /> {label}
             </Link>

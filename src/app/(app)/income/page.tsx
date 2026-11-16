@@ -44,11 +44,11 @@ export default async function Income() {
           <div className="grid sm:grid-cols-3 gap-4 text-sm">
             <div>
               <p className="text-xs text-stone-500">Rent in</p>
-              <p className="text-xl font-semibold tabular-nums">{money(rentIn)}<span className="text-xs text-stone-500 font-normal">/mo</span></p>
+              <p className="num text-xl">{money(rentIn)}<span className="text-xs text-stone-500 font-normal">/mo</span></p>
             </div>
             <div>
               <p className="text-xs text-stone-500">Costs out</p>
-              <p className="text-xl font-semibold tabular-nums">{money(rentOut)}<span className="text-xs text-stone-500 font-normal">/mo</span></p>
+              <p className="num text-xl">{money(rentOut)}<span className="text-xs text-stone-500 font-normal">/mo</span></p>
               <ul className="text-xs text-stone-500 mt-1">
                 {rentalCosts.map((b) => (
                   <li key={b.name}>{b.name}: {money(monthly(b.amount, b.frequency))}/mo</li>
@@ -57,7 +57,7 @@ export default async function Income() {
             </div>
             <div>
               <p className="text-xs text-stone-500">Profit</p>
-              <p className={`text-xl font-semibold tabular-nums ${profit >= 0 ? "text-emerald-700" : "text-red-600"}`}>{money(profit)}<span className="text-xs text-stone-500 font-normal">/mo</span></p>
+              <p className={`num text-xl ${profit >= 0 ? "text-emerald-700" : "text-red-600"}`}>{money(profit)}<span className="text-xs text-stone-500 font-normal">/mo</span></p>
               <p className="text-xs text-stone-500">{money(profit * 12, true)} a year, before tax, repairs and fees</p>
             </div>
           </div>
@@ -86,7 +86,7 @@ export default async function Income() {
                     <DeleteButton table="income" id={i.id} what={i.name} />
                   </div>
                 </div>
-                <p className="text-2xl font-semibold tabular-nums mt-2">
+                <p className="num text-2xl mt-2">
                   {money(i.amount)} <span className="text-sm text-stone-500 font-normal">{frequencyLabel(i.frequency).toLowerCase()}</span>
                 </p>
                 <p className="text-xs text-stone-500">{money(yearly(i.amount, i.frequency), true)} a year</p>

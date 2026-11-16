@@ -33,7 +33,7 @@ export default async function Cars() {
               <Card key={c.id}>
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <span className="inline-block font-mono font-bold bg-yellow-300 border border-yellow-500 rounded px-2 py-0.5 tracking-wider">{c.registration}</span>
+                    <span className="plate text-lg">{c.registration}</span>
                     <p className="text-sm text-stone-600 mt-1.5">{[c.year, c.colour, c.make, c.model].filter(Boolean).join(" ")}</p>
                   </div>
                   <div className="flex">

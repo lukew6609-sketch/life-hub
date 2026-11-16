@@ -13,14 +13,13 @@ export type AttentionItem = {
 
 /** Everything with a date coming up (or overdue) inside `windowDays`. */
 export async function getAttention(supabase: SupabaseClient, windowDays: number) {
-  const [c, ph, v, w, e, k, l, inc] = await Promise.all([
+  const [c, ph, v, w, e, k, inc] = await Promise.all([
     supabase.from("commitments").select("*").eq("active", true).not("end_date", "is", null),
     supabase.from("price_history").select("commitment_id, effective_date, amount, frequency"),
     supabase.from("vehicles").select("*"),
     supabase.from("warranties").select("*").not("expiry_date", "is", null),
     supabase.from("energy_tariffs").select("*").eq("is_current", true).not("end_date", "is", null),
     supabase.from("key_dates").select("*").eq("done", false),
-    supabase.from("loans").select("*").is("returned_on", null),
     supabase.from("income").select("*").eq("active", true).not("end_date", "is", null),
   ]);
 
@@ -81,22 +80,6 @@ export async function getAttention(supabase: SupabaseClient, windowDays: number)
   for (const x of k.data ?? []) {
     if (within(x.due_date))
       items.push({ key: "k" + x.id, title: x.title, detail: x.notes ?? x.category ?? "", date: x.due_date, days: daysUntil(x.due_date), href: "/dates", kind: "date" });
-  }
-
-  for (const x of l.data ?? []) {
-    const due = x.expected_back as string | null;
-    const out = -daysUntil(x.date_out);
-    if ((due && within(due)) || (!due && out >= 30)) {
-      items.push({
-        key: "l" + x.id,
-        title: x.direction === "lent" ? `${x.person} still has your ${x.item}` : `You still have ${x.person}'s ${x.item}`,
-        detail: `${x.direction === "lent" ? "Lent" : "Borrowed"} ${out} days ago`,
-        date: due ?? x.date_out,
-        days: due ? daysUntil(due) : 0,
-        href: "/lent",
-        kind: "loan",
-      });
-    }
   }
 
   for (const x of inc.data ?? []) {

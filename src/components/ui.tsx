@@ -6,7 +6,7 @@ export function PageHeader({ title, subtitle, children }: { title: string; subti
   return (
     <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-3xl font-bold">{title}</h1>
         {subtitle && <p className="text-stone-500 text-sm mt-1">{subtitle}</p>}
       </div>
       <div className="flex gap-2 flex-wrap">{children}</div>
@@ -19,7 +19,7 @@ export function Card({ children, className = "", title, action }: { children: Re
     <section className={`card ${className}`}>
       {(title || action) && (
         <div className="flex items-center justify-between mb-3">
-          {title && <h2 className="font-semibold">{title}</h2>}
+          {title && <h2 className="font-semibold text-lg">{title}</h2>}
           {action}
         </div>
       )}
@@ -31,8 +31,8 @@ export function Card({ children, className = "", title, action }: { children: Re
 export function Stat({ label, value, sub, href }: { label: string; value: string; sub?: string; href?: string }) {
   const inner = (
     <div className="card h-full">
-      <p className="text-xs uppercase tracking-wide text-stone-500">{label}</p>
-      <p className="text-2xl font-semibold mt-1 tabular-nums">{value}</p>
+      <p className="text-xs text-stone-500">{label}</p>
+      <p className="num text-2xl mt-1">{value}</p>
       {sub && <p className="text-xs text-stone-500 mt-1">{sub}</p>}
     </div>
   );
@@ -58,5 +58,5 @@ export function DueBadge({ date }: { date?: string | null }) {
 }
 
 export function Empty({ children }: { children: ReactNode }) {
-  return <div className="text-sm text-stone-500 border border-dashed rounded-xl p-6 text-center">{children}</div>;
+  return <div className="text-sm text-stone-500 border border-dashed border-stone-300 rounded-2xl p-8 text-center">{children}</div>;
 }

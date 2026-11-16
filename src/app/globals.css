@@ -1,46 +1,134 @@
 @import "tailwindcss";
 
+/*
+  Dark theme. Rather than touching every page, the colour scales the pages use
+  are remapped here: light shades become dark tints, dark shades become light.
+  "white" is the panel colour.
+*/
+@theme {
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-white: #18233a;
+
+  --color-stone-50: #1d2943;
+  --color-stone-100: #24314e;
+  --color-stone-200: #2d3b5c;
+  --color-stone-300: #3b4a6d;
+  --color-stone-400: #6c7b9c;
+  --color-stone-500: #93a0bd;
+  --color-stone-600: #b1bcd3;
+  --color-stone-700: #cbd3e3;
+  --color-stone-800: #dde3ef;
+  --color-stone-900: #eef2f9;
+
+  --color-emerald-50: #14302e;
+  --color-emerald-100: #173c38;
+  --color-emerald-200: #1d5249;
+  --color-emerald-300: #2b7564;
+  --color-emerald-500: #3fc9a1;
+  --color-emerald-600: #4fd6ae;
+  --color-emerald-700: #5fe0b8;
+  --color-emerald-800: #86ecca;
+
+  --color-amber-50: #33280f;
+  --color-amber-100: #3e3012;
+  --color-amber-200: #5a4517;
+  --color-amber-400: #f2b84b;
+  --color-amber-500: #f2b84b;
+  --color-amber-700: #f6c86f;
+  --color-amber-800: #f9d690;
+
+  --color-red-50: #3a1b24;
+  --color-red-100: #46212c;
+  --color-red-500: #ff6b6b;
+  --color-red-600: #ff8080;
+  --color-red-700: #ff9c9c;
+
+  --color-sky-50: #13283f;
+  --color-sky-100: #17314e;
+  --color-sky-500: #5aaeff;
+  --color-sky-800: #a3cfff;
+}
+
 :root {
-  --background: #f7f6f3;
-  --foreground: #1c1917;
+  color-scheme: dark;
+  --ink: #111a2c;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(95, 224, 184, 0.06), transparent 60%),
+    var(--ink);
+  color: var(--color-stone-900);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: rgba(95, 224, 184, 0.35);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-emerald-700);
+  outline-offset: 2px;
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)];
+    @apply bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 min-w-0;
+  }
+  /* Money amounts: Figtree, heavy, tabular (Bricolage's £ reads like ₤) */
+  .num {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
   }
   .btn {
-    @apply inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 text-white text-sm font-medium px-3.5 py-2 hover:bg-emerald-800 disabled:opacity-50 transition;
+    @apply inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 text-white text-sm font-semibold px-3.5 py-2 hover:bg-emerald-800 disabled:opacity-50 transition-colors;
   }
   .btn-ghost {
-    @apply inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white text-sm font-medium px-3.5 py-2 hover:bg-stone-50 disabled:opacity-50 transition;
+    @apply inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-stone-50 text-stone-800 text-sm font-medium px-3.5 py-2 hover:bg-stone-100 disabled:opacity-50 transition-colors;
   }
   .btn-icon {
-    @apply inline-flex items-center justify-center rounded-lg p-1.5 hover:bg-stone-100 disabled:opacity-50 transition;
+    @apply inline-flex items-center justify-center rounded-lg p-1.5 text-stone-500 hover:text-stone-900 hover:bg-stone-100 disabled:opacity-50 transition-colors;
   }
   .label {
-    @apply block text-xs font-medium text-stone-600 mb-1;
+    @apply block text-xs font-medium text-stone-500 mb-1;
   }
   .input {
-    @apply w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20;
+    @apply w-full rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/25;
   }
   .table {
     @apply w-full text-sm;
   }
   .table th {
-    @apply text-left text-xs font-medium uppercase tracking-wide text-stone-500 pb-2 pr-3 whitespace-nowrap;
+    @apply text-left text-xs font-medium text-stone-500 pb-2 pr-3 whitespace-nowrap;
   }
   .table td {
-    @apply py-2.5 pr-3 border-t border-stone-100 align-top;
+    @apply py-3 pr-3 border-t border-stone-200/70 align-top;
   }
   .pill {
     @apply inline-block text-[11px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600;
   }
+  .plate {
+    @apply inline-block font-bold rounded-md px-2.5 py-0.5 tracking-wider border-2;
+    background: #f7d43a;
+    border-color: #c9a514;
+    color: #141414;
+    font-family: "Charles Wright", var(--font-display);
+  }
 }
-.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+
+.no-scrollbar::-webkit-scrollbar { display: none }
+.no-scrollbar { scrollbar-width: none }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/supabase/server";
 import { categoryLabel, frequencyLabel } from "@/lib/fields";
 import { fmtDate, money, priceTrend, yearly } from "@/lib/money";
 import RecordForm from "@/components/RecordForm";
+import { CatIcon } from "@/lib/categories";
 import DeleteButton from "@/components/DeleteButton";
 import { Card, DueBadge, PageHeader } from "@/components/ui";
 
@@ -44,7 +45,8 @@ export default async function Bill({ params }: { params: Promise<{ id: string }>
       <Link href="/bills" className="text-sm text-stone-500 inline-flex items-center gap-1 mb-3">
         <ArrowLeft size={14} /> Bills
       </Link>
-      <PageHeader title={b.name} subtitle={b.active ? undefined : "Cancelled / no longer paying"}>
+      <div className="flex items-center gap-3 mb-2"><CatIcon category={b.category} size={44} /></div>
+      <PageHeader title={b.name} subtitle={[b.provider, b.active ? null : "Cancelled / no longer paying"].filter(Boolean).join(" · ") || undefined}>
         <RecordForm table="commitments" record={b} title={`Edit ${b.name}`} />
         <DeleteButton table="commitments" id={b.id} what={b.name} after="/bills" />
       </PageHeader>

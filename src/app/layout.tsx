@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/figtree";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,7 +9,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "Life Hub", statusBarStyle: "default" },
 };
 
-export const viewport: Viewport = { themeColor: "#047857", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#111a2c", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
