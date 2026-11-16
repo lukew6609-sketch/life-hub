@@ -37,10 +37,12 @@ function projectYear(bills: Bill[]) {
 
 export default async function Review() {
   const { supabase } = await requireUser();
-  const [{ data: bills }, { data: history }] = await Promise.all([
+  const [{ data: bills }, { data: history }, { data: income }] = await Promise.all([
     supabase.from("commitments").select("id, name, amount, frequency, category, start_date, end_date, provider").eq("active", true),
     supabase.from("price_history").select("commitment_id, effective_date, amount, frequency"),
+    supabase.from("income").select("amount, frequency").eq("active", true),
   ]);
+  const inYear = (income ?? []).reduce((s, i) => s + yearly(i.amount, i.frequency), 0);
   const list = (bills ?? []) as Bill[];
   if (list.length === 0)
     return (
@@ -73,7 +75,7 @@ export default async function Review() {
         <Stat label="Per year" value={money(perYear, true)} />
         <Stat label="Average month" value={money(perYear / 12, true)} />
         <Stat label="Biggest month ahead" value={money(peak, true)} sub={year.find((m) => m.total === peak)?.label} />
-        <Stat label="Bills tracked" value={String(list.length)} sub={`${trends.length} with price history`} />
+        <Stat label="Left after bills / year" value={inYear ? money(inYear - perYear, true) : "—"} sub={inYear ? `from ${money(inYear, true)} coming in` : "add income on Money in"} href="/income" />
       </div>
 
       <Card title="Next 12 months" action={<span className="text-xs text-stone-500">yearly & quarterly payments land in their month</span>}>

@@ -46,6 +46,16 @@ export const FREQUENCIES = opt([
   ["one_off", "One-off"],
 ]);
 
+export const INCOME_CATEGORIES = opt([
+  ["wages", "Wages / salary"],
+  ["dividends", "Dividends"],
+  ["rent", "Rent received"],
+  ["benefits", "Benefits"],
+  ["pension", "Pension"],
+  ["other", "Other"],
+]);
+export const incomeCategoryLabel = (v?: string | null) => INCOME_CATEGORIES.find((c) => c.value === v)?.label ?? "Other";
+
 export const categoryLabel = (v?: string | null) => CATEGORIES.find((c) => c.value === v)?.label ?? "Other";
 export const frequencyLabel = (v?: string | null) => FREQUENCIES.find((c) => c.value === v)?.label ?? v ?? "";
 
@@ -123,6 +133,24 @@ export const FORMS: Record<string, Field[]> = {
     { name: "repeat_months", label: "Repeats every (months)", type: "number", help: "e.g. 12 for a yearly boiler service" },
     { name: "done", label: "Done", type: "checkbox" },
     { name: "notes", label: "Notes", type: "textarea", wide: true },
+  ],
+  income: [
+    { name: "name", label: "Name", type: "text", required: true, placeholder: "e.g. Wages" },
+    { name: "source", label: "From", type: "text", placeholder: "e.g. MELW Properties Ltd" },
+    { name: "category", label: "Type", type: "select", options: INCOME_CATEGORIES },
+    { name: "amount", label: "Amount (£)", type: "money" },
+    { name: "frequency", label: "How often", type: "select", options: FREQUENCIES },
+    { name: "payment_day", label: "Day it comes in", type: "number", placeholder: "1-31" },
+    { name: "start_date", label: "Started", type: "date" },
+    { name: "end_date", label: "Ends (e.g. tenancy end)", type: "date", help: "Shows on the dashboard when it's coming up" },
+    { name: "active", label: "Still coming in", type: "checkbox", checked: true },
+    { name: "notes", label: "Notes", type: "textarea", wide: true },
+  ],
+  income_history: [
+    { name: "effective_date", label: "From", type: "date", required: true },
+    { name: "amount", label: "Amount (£)", type: "money", required: true },
+    { name: "frequency", label: "How often", type: "select", options: FREQUENCIES },
+    { name: "note", label: "Note", type: "text" },
   ],
   price_history: [
     { name: "effective_date", label: "From", type: "date", required: true },

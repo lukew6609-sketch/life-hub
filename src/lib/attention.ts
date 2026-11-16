@@ -13,7 +13,7 @@ export type AttentionItem = {
 
 /** Everything with a date coming up (or overdue) inside `windowDays`. */
 export async function getAttention(supabase: SupabaseClient, windowDays: number) {
-  const [c, ph, v, w, e, k, l] = await Promise.all([
+  const [c, ph, v, w, e, k, l, inc] = await Promise.all([
     supabase.from("commitments").select("*").eq("active", true).not("end_date", "is", null),
     supabase.from("price_history").select("commitment_id, effective_date, amount, frequency"),
     supabase.from("vehicles").select("*"),
@@ -21,6 +21,7 @@ export async function getAttention(supabase: SupabaseClient, windowDays: number)
     supabase.from("energy_tariffs").select("*").eq("is_current", true).not("end_date", "is", null),
     supabase.from("key_dates").select("*").eq("done", false),
     supabase.from("loans").select("*").is("returned_on", null),
+    supabase.from("income").select("*").eq("active", true).not("end_date", "is", null),
   ]);
 
   const items: AttentionItem[] = [];
@@ -96,6 +97,11 @@ export async function getAttention(supabase: SupabaseClient, windowDays: number)
         kind: "loan",
       });
     }
+  }
+
+  for (const x of inc.data ?? []) {
+    if (within(x.end_date))
+      items.push({ key: "i" + x.id, title: `${x.name} ends`, detail: [x.source, x.amount ? `${money(x.amount)} ${x.frequency}` : null].filter(Boolean).join(" · "), date: x.end_date, days: daysUntil(x.end_date), href: "/income", kind: "date" });
   }
 
   return items.sort((a, b) => a.days - b.days);

@@ -23,7 +23,7 @@ function rowFrom(table: TableName, fd: FormData) {
     else row[f.name] = s === "" ? null : s;
   }
   // extra hidden link fields
-  for (const k of ["commitment_id", "vehicle_id"]) {
+  for (const k of ["commitment_id", "vehicle_id", "income_id"]) {
     const v = fd.get(k);
     if (v !== null) row[k] = String(v) || null;
   }
@@ -39,23 +39,26 @@ export async function saveRecord(_prev: ActionState, fd: FormData): Promise<Acti
 
   for (const f of FORMS[table]) if (f.required && (row[f.name] === null || row[f.name] === undefined)) return { error: `${f.label} is required` };
 
+  // Tables whose amount changes are logged automatically.
+  const HIST: Record<string, [string, string]> = { commitments: ["price_history", "commitment_id"], income: ["income_history", "income_id"] };
+  const hist = HIST[table];
   let before: { amount: number | null; frequency: string } | null = null;
-  if (table === "commitments" && id) {
-    const { data } = await supabase.from("commitments").select("amount, frequency").eq("id", id).single();
+  if (hist && id) {
+    const { data } = await supabase.from(table).select("amount, frequency").eq("id", id).single();
     before = data;
   }
 
   const res = id
-    ? await supabase.from(table).update(table === "commitments" ? { ...row, updated_at: new Date().toISOString() } : row).eq("id", id).select("id").single()
+    ? await supabase.from(table).update(hist ? { ...row, updated_at: new Date().toISOString() } : row).eq("id", id).select("id").single()
     : await supabase.from(table).insert(row).select("id").single();
   if (res.error) return { error: res.error.message };
 
   // Keep a price history automatically so the yearly review can show increases.
-  if (table === "commitments" && row.amount !== null && row.amount !== undefined) {
+  if (hist && row.amount !== null && row.amount !== undefined) {
     const changed = !before || Number(before.amount) !== Number(row.amount) || before.frequency !== row.frequency;
     if (changed)
-      await supabase.from("price_history").insert({
-        commitment_id: res.data.id,
+      await supabase.from(hist[0]).insert({
+        [hist[1]]: res.data.id,
         amount: row.amount,
         frequency: row.frequency ?? "monthly",
         effective_date: id ? todayISO() : (row.start_date as string) ?? todayISO(),
