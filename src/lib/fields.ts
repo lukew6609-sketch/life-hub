@@ -47,6 +47,7 @@ export const FREQUENCIES = opt([
   ["fortnightly", "Fortnightly"],
   ["four_weekly", "Every 4 weeks"],
   ["monthly", "Monthly"],
+  ["ten_monthly", "10 monthly payments (Apr–Jan)"],
   ["quarterly", "Quarterly"],
   ["six_monthly", "Every 6 months"],
   ["annually", "Yearly"],

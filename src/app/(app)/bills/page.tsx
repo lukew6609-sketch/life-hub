@@ -10,7 +10,7 @@ import { Empty, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
-const PER: Record<string, string> = { weekly: "/wk", fortnightly: "/2wk", four_weekly: "/4wk", monthly: "/mo", quarterly: "/qtr", six_monthly: "/6mo", annually: "/yr", one_off: "" };
+const PER: Record<string, string> = { weekly: "/wk", fortnightly: "/2wk", four_weekly: "/4wk", monthly: "/mo", ten_monthly: "/mo Apr–Jan", quarterly: "/qtr", six_monthly: "/6mo", annually: "/yr", one_off: "" };
 
 function RenewChip({ date }: { date: string }) {
   const n = daysUntil(date);
@@ -82,7 +82,8 @@ export default async function Bills({ searchParams }: { searchParams: Promise<{ 
                           {b.amount === null ? "—" : money(b.amount)}
                           <span className="text-xs font-normal text-stone-500 ml-0.5">{PER[b.frequency] ?? ""}</span>
                         </p>
-                        {b.frequency !== "monthly" && b.amount !== null && <p className="text-xs text-stone-500">{money(monthly(b.amount, b.frequency))}/mo</p>}
+                        {b.frequency !== "monthly" && b.frequency !== "ten_monthly" && b.amount !== null && <p className="text-xs text-stone-500">{money(monthly(b.amount, b.frequency))}/mo</p>}
+                        {b.frequency === "ten_monthly" && b.amount !== null && <p className="text-xs text-stone-500">{money(monthly(b.amount, b.frequency))}/mo averaged</p>}
                         {b.end_date && <div className="sm:hidden mt-1"><RenewChip date={b.end_date} /></div>}
                       </div>
                       <ChevronRight size={16} className="text-stone-400 shrink-0" />

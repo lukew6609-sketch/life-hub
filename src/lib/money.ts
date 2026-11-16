@@ -9,6 +9,7 @@ const PER_YEAR: Record<string, number> = {
   fortnightly: 26,
   four_weekly: 13,
   monthly: 12,
+  ten_monthly: 10,
   quarterly: 4,
   six_monthly: 2,
   annually: 1,

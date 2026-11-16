@@ -20,6 +20,14 @@ function projectYear(bills: Bill[]) {
   });
   for (const b of bills) {
     if (!b.amount || b.frequency === "one_off") continue;
+    if (b.frequency === "ten_monthly") {
+      // e.g. council tax: April to January, nothing in February or March
+      months.forEach((m, i) => {
+        const mon = new Date(now.getFullYear(), now.getMonth() + i, 1).getMonth();
+        if (mon !== 1 && mon !== 2) m.regular += Number(b.amount);
+      });
+      continue;
+    }
     const step = MONTHS_BETWEEN[b.frequency];
     const anchor = b.end_date ?? b.start_date;
     if (!step || !anchor) {
