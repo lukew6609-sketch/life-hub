@@ -70,6 +70,11 @@ h1, h2, h3, .font-display {
   letter-spacing: -0.01em;
 }
 
+@layer base {
+  /* Tailwind's default border colour is the text colour, which is near-white here */
+  *, ::after, ::before { border-color: var(--color-stone-200); }
+}
+
 ::selection {
   background: rgba(95, 224, 184, 0.35);
 }

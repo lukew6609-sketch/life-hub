@@ -1,4 +1,4 @@
-import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
+import { convertToModelMessages, createUIMessageStreamResponse, isStepCount, streamText, toUIMessageStream, tool, type UIMessage } from "ai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { AI_MODEL } from "@/lib/ai";
@@ -42,9 +42,9 @@ DOCUMENT INDEX (use read_document with id for full text): ${JSON.stringify(strip
 
   const result = streamText({
     model: AI_MODEL,
-    system,
-    messages: convertToModelMessages(messages),
-    stopWhen: stepCountIs(6),
+    instructions: system,
+    messages: await convertToModelMessages(messages),
+    stopWhen: isStepCount(6),
     tools: {
       search_documents: tool({
         description: "Full-text search across all uploaded documents (policy schedules, bills, receipts, letters). Returns matching documents with summaries and key facts.",
@@ -71,5 +71,5 @@ DOCUMENT INDEX (use read_document with id for full text): ${JSON.stringify(strip
     },
   });
 
-  return result.toUIMessageStreamResponse();
+  return createUIMessageStreamResponse({ stream: toUIMessageStream({ stream: result.stream, originalMessages: messages }) });
 }

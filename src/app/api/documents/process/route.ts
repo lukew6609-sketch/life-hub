@@ -1,4 +1,4 @@
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { z } from "zod";
 import { extractText, getDocumentProxy } from "unpdf";
 import { createClient } from "@/lib/supabase/server";
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
     if (canAttach && (text.length <= 200 || bytes.byteLength < 8_000_000)) content.push({ type: "file", data: bytes, mediaType: mime });
     if (!canAttach && text.length <= 200) throw new Error("Unsupported file type. Upload a PDF or a photo.");
 
-    const { object: raw } = await generateObject({ model: AI_MODEL, schema: Raw, messages: [{ role: "user", content }] });
+    const { output: raw } = await generateText({ model: AI_MODEL, output: Output.object({ schema: Raw }), messages: [{ role: "user", content }] });
     const x = normalise(raw);
 
     // try to link to a car automatically

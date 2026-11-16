@@ -14,8 +14,8 @@ const SUGGESTIONS = [
   "When's my MOT due?",
 ];
 
-export default function Chat({ initial }: { initial?: string }) {
-  const { messages, sendMessage, status, error } = useChat({ transport: new DefaultChatTransport({ api: "/api/chat" }) });
+export default function Chat({ initial, api = "/api/chat" }: { initial?: string; api?: string }) {
+  const { messages, sendMessage, status, error } = useChat({ transport: new DefaultChatTransport({ api }) });
   const [input, setInput] = useState("");
   const sent = useRef(false);
   const end = useRef<HTMLDivElement>(null);
@@ -27,7 +27,10 @@ export default function Chat({ initial }: { initial?: string }) {
       sendMessage({ text: initial });
     }
   }, [initial, sendMessage]);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [messages]);
+  useEffect(() => {
+    // braces matter: newer browsers return a Promise from scrollIntoView, which React would treat as a clean-up function
+    end.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const ask = (t: string) => {
     if (!t.trim() || busy) return;
@@ -54,8 +57,8 @@ export default function Chat({ initial }: { initial?: string }) {
             <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${m.role === "user" ? "bg-emerald-700 text-white" : "bg-stone-100"}`}>
               {m.parts.map((p, i) => {
                 if (p.type === "text") return <div key={i} className="whitespace-pre-wrap">{p.text}</div>;
-                if (p.type === "tool-search_documents") return <div key={i} className="text-xs text-stone-500 flex items-center gap-1 my-1"><Search size={12} /> Searching documents…</div>;
-                if (p.type === "tool-read_document") return <div key={i} className="text-xs text-stone-500 flex items-center gap-1 my-1"><FileText size={12} /> Reading a document…</div>;
+                if (p.type === "tool-search_documents") return <div key={i} className="text-xs text-stone-500 flex items-center gap-1 my-1"><Search size={12} /> {p.state === "output-available" ? "Searched your documents" : "Searching documents…"}</div>;
+                if (p.type === "tool-read_document") return <div key={i} className="text-xs text-stone-500 flex items-center gap-1 my-1"><FileText size={12} /> {p.state === "output-available" ? "Read a document" : "Reading a document…"}</div>;
                 return null;
               })}
             </div>
