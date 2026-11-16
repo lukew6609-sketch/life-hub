@@ -61,7 +61,8 @@ export async function POST(req: Request) {
     let text = "";
     if (mime === "application/pdf") {
       try {
-        const pdf = await getDocumentProxy(bytes);
+        // pdf.js takes ownership of the buffer it is given, so pass a copy and keep `bytes` for the AI call
+        const pdf = await getDocumentProxy(bytes.slice());
         const res = await extractText(pdf, { mergePages: true });
         text = (Array.isArray(res.text) ? res.text.join("\n") : res.text).trim();
       } catch {
