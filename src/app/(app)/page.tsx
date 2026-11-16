@@ -6,6 +6,7 @@ import { categoryLabel } from "@/lib/fields";
 import { money, monthly, relDays } from "@/lib/money";
 import { CatIcon, GROUP_COLOR } from "@/lib/categories";
 import { Card } from "@/components/ui";
+import PrivateCard from "@/components/PrivateCard";
 
 export const dynamic = "force-dynamic";
 
@@ -101,11 +102,7 @@ export default async function Dashboard() {
         </p>
       </header>
 
-      <Card>
-        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
-          <h2 className="font-semibold text-lg">Each month</h2>
-          <Link href="/income" className="text-sm text-emerald-700 hover:underline">Money in</Link>
-        </div>
+      <PrivateCard title="Each month" action={<Link href="/income" className="text-sm text-emerald-700 hover:underline">Money in</Link>}>
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div>
             <p className="text-xs text-stone-500">Coming in</p>
@@ -141,10 +138,7 @@ export default async function Dashboard() {
             </span>
           )}
         </div>
-        {left < 0 && inMonth > 0 && (
-          <p className="text-xs text-stone-500 mt-3">Bills are more than the income you&apos;ve added. Add any dividends or other money in on the Money in page.</p>
-        )}
-      </Card>
+      </PrivateCard>
 
       <div className="grid lg:grid-cols-5 gap-6">
         <Card className="lg:col-span-3" title="Coming up">
