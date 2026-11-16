@@ -24,6 +24,8 @@ export const CATEGORIES = opt([
   ["phone_broadband", "Phone & broadband"],
   ["council_tax", "Council tax"],
   ["mortgage_rent", "Mortgage / rent"],
+  ["rental", "Rental property"],
+  ["home", "Home"],
   ["loan_finance", "Loan / finance"],
   ["savings", "Savings / investments"],
   ["car", "Car"],
