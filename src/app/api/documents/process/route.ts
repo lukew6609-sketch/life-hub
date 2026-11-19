@@ -205,8 +205,19 @@ export async function POST(req: Request) {
     if (x.protection) {
       const p = x.protection;
       let row: Record<string, unknown> | null = null;
+      let multiPart = false;
       if (doc.commitment_id) row = (await supabase.from("protection").select("*").eq("commitment_id", doc.commitment_id).maybeSingle()).data;
-      if (!row && x.reference) row = (await supabase.from("protection").select("*").eq("policy_number", x.reference).maybeSingle()).data;
+      if (!row && x.reference) {
+        // A policy can have several parts (e.g. a claimed CI part and an active life part), and letters
+        // sometimes quote a plan number that's stored in the policy's details, so match on either and prefer the active one.
+        const ref = x.reference.replace(/[^A-Za-z0-9]/g, "");
+        const { data: all } = await supabase.from("protection").select("*");
+        const matches = (all ?? []).filter(
+          (r) => String(r.policy_number ?? "").replace(/[^A-Za-z0-9]/g, "") === ref || (ref.length >= 6 && JSON.stringify(r.details ?? "").includes(ref)),
+        );
+        multiPart = matches.length > 1;
+        row = matches.find((r) => r.status === "active" && r.life_cover !== null) ?? matches.find((r) => r.status === "active") ?? matches[0] ?? null;
+      }
       const found: Record<string, unknown> = {
         insurer: x.provider,
         policy_number: x.reference,
@@ -231,10 +242,12 @@ export async function POST(req: Request) {
           const blankish = cur === null || cur === undefined || cur === "" || (k === "cover_type" && cur === "other");
           if (v !== null && v !== undefined && blankish) patch[k] = v;
         }
-        if (p.status === "claimed" || p.status === "ended") patch.status = p.status;
+        // With several parts we can't tell which one a claim letter means, so leave the status alone.
+        if (!multiPart && (p.status === "claimed" || p.status === "ended")) patch.status = p.status;
         if (!Array.isArray(row.details) || (row.details as unknown[]).length === 0) patch.details = x.key_facts;
         if (Object.keys(patch).length) await supabase.from("protection").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", row.id as string);
-      } else {
+      } else if (p.life_cover !== null || p.ci_cover !== null || p.monthly_benefit !== null) {
+        // Only start a new policy from a document that actually states the cover (not a direct debit letter, say).
         const clean = Object.fromEntries(Object.entries(found).filter(([, v]) => v !== null && v !== undefined));
         await supabase.from("protection").insert({ ...clean, name: x.title, commitment_id: doc.commitment_id ?? null, status: p.status ?? "active", details: x.key_facts });
       }
