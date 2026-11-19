@@ -190,3 +190,10 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export async function saveEmergencyNotes(fd: FormData) {
+  const { supabase, user } = await requireUser();
+  const notes = String(fd.get("emergency_notes") ?? "").trim() || null;
+  await supabase.from("settings").upsert({ user_id: user.id, emergency_notes: notes });
+  revalidatePath("/if-something-happens");
+}

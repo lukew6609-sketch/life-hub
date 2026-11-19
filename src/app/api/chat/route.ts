@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (!user) return new Response("Not signed in", { status: 401 });
 
   // Structured records are small, so give the model all of them up front.
-  const [c, v, w, e, l, k, d, inc, prot] = await Promise.all([
+  const [c, v, w, e, l, k, d, inc, st, prot] = await Promise.all([
     supabase.from("commitments").select("name, provider, category, bill_group, amount, frequency, payment_day, payment_method, start_date, end_date, auto_renews, reference, phone, website, notes, active"),
     supabase.from("vehicles").select("registration, make, model, year, mot_due, tax_due, service_due, notes"),
     supabase.from("warranties").select("item, brand, retailer, purchase_date, expiry_date, cost, serial_number, notes"),
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     supabase.from("key_dates").select("title, category, due_date, repeat_months, done, notes"),
     supabase.from("documents").select("id, title, doc_type, provider, reference, start_date, end_date").eq("status", "ready").order("created_at", { ascending: false }).limit(300),
     supabase.from("income").select("name, source, category, amount, frequency, payment_day, start_date, end_date, active, notes"),
+    supabase.from("settings").select("emergency_notes").maybeSingle(),
     supabase.from("protection").select("name, insurer, policy_number, cover_type, people_covered, life_cover, ci_cover, monthly_benefit, cover_basis, start_date, end_date, premium, premium_frequency, in_trust, beneficiaries, claims_phone, status, details, notes"),
   ]);
 
@@ -35,6 +36,7 @@ Energy rates: unit rates are p/kWh, standing charges p/day.
 BILLS & POLICIES: ${JSON.stringify(strip(c.data))}
 MONEY IN: ${JSON.stringify(strip(inc.data))}
 LIFE / PROTECTION COVER: ${JSON.stringify(strip(prot.data))}
+LUKE'S NOTES FOR IF SOMETHING HAPPENS TO HIM (will, pensions, accounts, wishes): ${st.data?.emergency_notes ?? "none written yet"}
 CARS: ${JSON.stringify(strip(v.data))}
 WARRANTIES: ${JSON.stringify(strip(w.data))}
 ENERGY TARIFFS: ${JSON.stringify(strip(e.data))}

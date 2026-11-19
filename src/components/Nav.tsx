@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Wallet, HeartPulse, Bot, CalendarClock, Car, FileText, Flame, Handshake, LayoutDashboard, Receipt, Settings, ShieldCheck } from "lucide-react";
+import { BarChart3, Wallet, HeartPulse, LifeBuoy, Bot, CalendarClock, Car, FileText, Flame, Handshake, LayoutDashboard, Receipt, Settings, ShieldCheck } from "lucide-react";
 
 export const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/bills", label: "Bills & renewals", icon: Receipt },
   { href: "/income", label: "Money in", icon: Wallet },
   { href: "/cover", label: "Life cover", icon: HeartPulse },
+  { href: "/if-something-happens", label: "If something happens", icon: LifeBuoy },
   { href: "/review", label: "Yearly review", icon: BarChart3 },
   { href: "/cars", label: "Cars", icon: Car },
   { href: "/documents", label: "Documents", icon: FileText },
