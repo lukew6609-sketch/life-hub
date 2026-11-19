@@ -69,10 +69,14 @@ export default function Uploader({ bills, cars, linkBill, linkCar }: { bills: Op
           <option value="">Link to a bill (optional)</option>
           {bills.map((b) => <option key={b.id} value={b.id}>{b.label}</option>)}
         </select>
-        <select className="input" value={car} onChange={(e) => setCar(e.target.value)}>
-          <option value="">Link to a car (optional)</option>
-          {cars.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-        </select>
+        {cars.length > 0 ? (
+          <select className="input" value={car} onChange={(e) => setCar(e.target.value)}>
+            <option value="">Link to a car (optional)</option>
+            {cars.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </select>
+        ) : (
+          <div className="hidden sm:block" />
+        )}
         <button className="btn justify-center" disabled={!files.length || (!!status && status.endsWith("…"))} onClick={upload}>
           Upload {files.length ? `(${files.length})` : ""}
         </button>

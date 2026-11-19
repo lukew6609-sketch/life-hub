@@ -43,6 +43,22 @@ const Raw = z.object({
       mpan_mprn: blank("MPAN (electricity) or MPRN (gas)"),
     })
     .describe("Fill only if is_energy_bill, otherwise all empty strings and fuel 'unknown'. If both fuels are present, give electricity here and mention gas rates in key_facts."),
+  is_protection_policy: z.boolean().describe("True for life insurance, critical illness, income protection, mortgage protection or family income benefit documents (schedules, key facts, claim letters)"),
+  protection: z
+    .object({
+      cover_type: z.enum(["life", "critical_illness", "life_and_ci", "income_protection", "mortgage_protection", "family_income", "other", "unknown"]),
+      people_covered: blank("Names of the people insured (life assured)"),
+      life_cover: numField("Amount paid out on death, GBP"),
+      ci_cover: numField("Amount paid out on critical illness, GBP"),
+      monthly_benefit: numField("Monthly benefit for income protection / family income, GBP"),
+      cover_basis: blank("Level, decreasing (mortgage), increasing/indexed etc."),
+      end_date: dateField("Date the cover ends (policy term end / expiry)"),
+      in_trust: z.enum(["yes", "no", "unknown"]).describe("Is the policy written in trust?"),
+      beneficiaries: blank("Who the money is paid to / trustees / beneficiaries"),
+      claims_phone: blank("Phone number for making a claim"),
+      status: z.enum(["active", "claimed", "ended", "unknown"]).describe("'claimed' if the document confirms a claim was paid and the cover has ended"),
+    })
+    .describe("Fill only if is_protection_policy, otherwise empty strings / 'unknown'. Use key_facts for anything else important: waiting periods, deferred period, exclusions, children's cover, terminal illness cover, guaranteed vs reviewable premiums."),
   vehicle_registration: blank("UK reg if this is a car document"),
   transcription: z.string().describe("Only if no text was supplied with the file: a faithful transcription of the readable text (max ~4000 words). Otherwise empty string."),
 });
@@ -82,6 +98,21 @@ function normalise(r: z.infer<typeof Raw>) {
           monthly_payment: num(e.monthly_payment),
           meter_number: str(e.meter_number),
           mpan_mprn: str(e.mpan_mprn),
+        }
+      : null,
+    protection: r.is_protection_policy
+      ? {
+          cover_type: r.protection.cover_type === "unknown" ? null : r.protection.cover_type,
+          people_covered: str(r.protection.people_covered),
+          life_cover: num(r.protection.life_cover),
+          ci_cover: num(r.protection.ci_cover),
+          monthly_benefit: num(r.protection.monthly_benefit),
+          cover_basis: str(r.protection.cover_basis),
+          end_date: isoDate(r.protection.end_date),
+          in_trust: r.protection.in_trust === "unknown" ? null : r.protection.in_trust === "yes",
+          beneficiaries: str(r.protection.beneficiaries),
+          claims_phone: str(r.protection.claims_phone),
+          status: r.protection.status === "unknown" ? null : r.protection.status,
         }
       : null,
     vehicle_registration: str(r.vehicle_registration),
@@ -164,10 +195,50 @@ export async function POST(req: Request) {
         summary: x.summary,
         key_facts: facts,
         energy: x.energy,
+        protection: x.protection,
         extracted_text: text.length > 200 ? text : x.transcription ?? text,
         vehicle_id,
       })
       .eq("id", id);
+
+    // Life cover documents: fill in the matching policy on the Life cover page (only gaps, never overwriting what's there).
+    if (x.protection) {
+      const p = x.protection;
+      let row: Record<string, unknown> | null = null;
+      if (doc.commitment_id) row = (await supabase.from("protection").select("*").eq("commitment_id", doc.commitment_id).maybeSingle()).data;
+      if (!row && x.reference) row = (await supabase.from("protection").select("*").eq("policy_number", x.reference).maybeSingle()).data;
+      const found: Record<string, unknown> = {
+        insurer: x.provider,
+        policy_number: x.reference,
+        cover_type: p.cover_type,
+        people_covered: p.people_covered,
+        life_cover: p.life_cover,
+        ci_cover: p.ci_cover,
+        monthly_benefit: p.monthly_benefit,
+        cover_basis: p.cover_basis,
+        start_date: x.start_date,
+        end_date: p.end_date,
+        premium: x.amount,
+        premium_frequency: x.amount_frequency,
+        in_trust: p.in_trust,
+        beneficiaries: p.beneficiaries,
+        claims_phone: p.claims_phone,
+      };
+      if (row) {
+        const patch: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(found)) {
+          const cur = row[k];
+          const blankish = cur === null || cur === undefined || cur === "" || (k === "cover_type" && cur === "other");
+          if (v !== null && v !== undefined && blankish) patch[k] = v;
+        }
+        if (p.status === "claimed" || p.status === "ended") patch.status = p.status;
+        if (!Array.isArray(row.details) || (row.details as unknown[]).length === 0) patch.details = x.key_facts;
+        if (Object.keys(patch).length) await supabase.from("protection").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", row.id as string);
+      } else {
+        const clean = Object.fromEntries(Object.entries(found).filter(([, v]) => v !== null && v !== undefined));
+        await supabase.from("protection").insert({ ...clean, name: x.title, commitment_id: doc.commitment_id ?? null, status: p.status ?? "active", details: x.key_facts });
+      }
+    }
 
     // If it's linked to a bill and states last year's price, add it to the price history.
     if (doc.commitment_id && x.previous_amount && x.start_date) {

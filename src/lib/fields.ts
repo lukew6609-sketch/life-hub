@@ -64,6 +64,17 @@ export const INCOME_CATEGORIES = opt([
 ]);
 export const incomeCategoryLabel = (v?: string | null) => INCOME_CATEGORIES.find((c) => c.value === v)?.label ?? "Other";
 
+export const COVER_TYPES = opt([
+  ["life", "Life insurance"],
+  ["critical_illness", "Critical illness"],
+  ["life_and_ci", "Life + critical illness"],
+  ["income_protection", "Income protection"],
+  ["mortgage_protection", "Mortgage protection"],
+  ["family_income", "Family income benefit"],
+  ["other", "Other / not sure"],
+]);
+export const coverTypeLabel = (v?: string | null) => COVER_TYPES.find((c) => c.value === v)?.label ?? "Other";
+
 export const categoryLabel = (v?: string | null) => CATEGORIES.find((c) => c.value === v)?.label ?? "Other";
 export const frequencyLabel = (v?: string | null) => FREQUENCIES.find((c) => c.value === v)?.label ?? v ?? "";
 
@@ -153,6 +164,26 @@ export const FORMS: Record<string, Field[]> = {
     { name: "start_date", label: "Started", type: "date" },
     { name: "end_date", label: "Ends (e.g. tenancy end)", type: "date", help: "Shows on the dashboard when it's coming up" },
     { name: "active", label: "Still coming in", type: "checkbox", checked: true },
+    { name: "notes", label: "Notes", type: "textarea", wide: true },
+  ],
+  protection: [
+    { name: "name", label: "Name", type: "text", required: true, placeholder: "e.g. Life insurance" },
+    { name: "insurer", label: "Insurer", type: "text" },
+    { name: "policy_number", label: "Policy number", type: "text" },
+    { name: "cover_type", label: "Type of cover", type: "select", options: COVER_TYPES },
+    { name: "status", label: "Status", type: "select", options: opt([["active", "Active"], ["claimed", "Claimed / paid out"], ["ended", "Ended"]]) },
+    { name: "people_covered", label: "Who's covered", type: "text", placeholder: "e.g. Luke, or Luke & Chantelle (joint)" },
+    { name: "life_cover", label: "Life cover (£)", type: "money", help: "Paid out on death" },
+    { name: "ci_cover", label: "Critical illness cover (£)", type: "money" },
+    { name: "monthly_benefit", label: "Monthly benefit (£)", type: "money", help: "Income protection / family income" },
+    { name: "cover_basis", label: "Cover basis", type: "text", placeholder: "Level, decreasing, increasing..." },
+    { name: "start_date", label: "Started", type: "date" },
+    { name: "end_date", label: "Cover ends", type: "date" },
+    { name: "premium", label: "Premium (£)", type: "money" },
+    { name: "premium_frequency", label: "Paid", type: "select", options: FREQUENCIES },
+    { name: "in_trust", label: "Written in trust", type: "checkbox" },
+    { name: "beneficiaries", label: "Who gets paid", type: "text" },
+    { name: "claims_phone", label: "Claims phone number", type: "text" },
     { name: "notes", label: "Notes", type: "textarea", wide: true },
   ],
   income_history: [
