@@ -137,3 +137,45 @@ h1, h2, h3, .font-display {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Printing: swap the dark palette for black on white so it doesn't eat ink */
+@media print {
+  @page { margin: 14mm; }
+  :root {
+    color-scheme: light;
+    --ink: #fff;
+    --color-white: #fff;
+    --color-stone-50: #fff;
+    --color-stone-100: #f3f3f3;
+    --color-stone-200: #d4d4d4;
+    --color-stone-300: #bdbdbd;
+    --color-stone-400: #8a8a8a;
+    --color-stone-500: #555;
+    --color-stone-600: #444;
+    --color-stone-700: #333;
+    --color-stone-800: #222;
+    --color-stone-900: #000;
+    --color-emerald-50: #fff;
+    --color-emerald-100: #fff;
+    --color-emerald-200: #ccc;
+    --color-emerald-300: #bbb;
+    --color-emerald-500: #000;
+    --color-emerald-600: #000;
+    --color-emerald-700: #000;
+    --color-emerald-800: #000;
+    --color-amber-50: #fff;
+    --color-amber-100: #fff;
+    --color-red-50: #fff;
+    --color-red-100: #fff;
+    --color-sky-50: #fff;
+    --color-sky-100: #fff;
+  }
+  body { background: #fff !important; color: #000; font-size: 11pt; }
+  .card { border: 1px solid #bbb; border-radius: 8px; padding: 10px 14px; break-inside: avoid; box-shadow: none; }
+  .card + .card, section + section { margin-top: 10px; }
+  a { color: #000 !important; text-decoration: none; }
+  .plate { background: #fff; border-color: #000; }
+  /* Category icon tiles: keep the outline, drop the coloured fill */
+  [data-cat-icon] { background: #fff !important; color: #000 !important; box-shadow: inset 0 0 0 1px #bbb !important; }
+  * { -webkit-print-color-adjust: economy; print-color-adjust: economy; }
+}

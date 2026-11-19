@@ -6,6 +6,7 @@ import { money, monthly } from "@/lib/money";
 import { CatIcon } from "@/lib/categories";
 import { saveEmergencyNotes } from "@/lib/actions";
 import { Card, PageHeader } from "@/components/ui";
+import PrintButton from "@/components/PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +68,10 @@ export default async function IfSomethingHappens() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <PageHeader title="If something happens" subtitle="For Chantelle: who to call, what you're entitled to, and what to sort out. Everything here updates from the rest of the app." />
+      <PageHeader title="If something happens" subtitle="For Chantelle: who to call, what you're entitled to, and what to sort out. Everything here updates from the rest of the app.">
+        <PrintButton label="Print a fresh copy" />
+      </PageHeader>
+      <p className="hidden print:block text-xs -mt-4">Printed {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" })}. The app always has the latest version.</p>
 
       <Card className="border-emerald-300/40">
         <h2 className="font-semibold text-lg">First steps</h2>
@@ -162,10 +166,11 @@ export default async function IfSomethingHappens() {
 
       <Card>
         <h2 className="font-semibold text-lg">Notes from Luke</h2>
-        <p className="text-sm text-stone-500 mt-1 mb-4">
+        <p className="text-sm text-stone-500 mt-1 mb-4 print:hidden">
           Anything that isn&apos;t in the app: where the will is and who the solicitor is, pensions, savings or other bank accounts, passwords or where they&apos;re kept, who to call for help, and anything you&apos;d want Chantelle to know.
         </p>
-        <form action={saveEmergencyNotes} className="space-y-3">
+        {settings?.emergency_notes && <p className="hidden print:block whitespace-pre-wrap text-sm">{settings.emergency_notes}</p>}
+        <form action={saveEmergencyNotes} className="space-y-3 print:hidden">
           <textarea name="emergency_notes" defaultValue={settings?.emergency_notes ?? ""} rows={10} className="input" placeholder="e.g. The will is with ... Pension with ... Savings at ..." />
           <button className="btn">Save notes</button>
         </form>

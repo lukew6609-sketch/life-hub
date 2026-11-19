@@ -31,6 +31,7 @@ export function CatIcon({ category, size = 36 }: { category?: string | null; siz
       className="inline-grid place-items-center rounded-xl shrink-0"
       style={{ width: size, height: size, background: `${color}1f`, color, boxShadow: `inset 0 0 0 1px ${color}33` }}
       aria-hidden
+      data-cat-icon
     >
       <Icon size={Math.round(size * 0.5)} />
     </span>
