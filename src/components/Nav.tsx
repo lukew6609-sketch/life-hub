@@ -9,7 +9,6 @@ export const NAV = [
   { href: "/bills", label: "Bills & renewals", icon: Receipt },
   { href: "/income", label: "Money in", icon: Wallet },
   { href: "/cover", label: "Life cover", icon: HeartPulse },
-  { href: "/if-something-happens", label: "If something happens", icon: LifeBuoy },
   { href: "/review", label: "Yearly review", icon: BarChart3 },
   { href: "/cars", label: "Cars", icon: Car },
   { href: "/documents", label: "Documents", icon: FileText },
@@ -19,6 +18,7 @@ export const NAV = [
   { href: "/lent", label: "Lent & borrowed", icon: Handshake },
   { href: "/dates", label: "Key dates", icon: CalendarClock },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/if-something-happens", label: "If something happens", icon: LifeBuoy },
 ];
 
 export default function Nav() {
@@ -37,7 +37,7 @@ export default function Nav() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm ${active(href) ? "bg-emerald-50 text-emerald-700 font-semibold" : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"}`}
+              className={`${href === "/if-something-happens" ? "!mt-4 " : ""}flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm ${active(href) ? "bg-emerald-50 text-emerald-700 font-semibold" : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"}`}
             >
               <Icon size={17} /> {label}
             </Link>
